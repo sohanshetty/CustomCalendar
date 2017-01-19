@@ -3,12 +3,13 @@ package com.example.sohan.customcalender;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.v4.content.ContextCompat;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -61,66 +62,86 @@ public class CalendarAdapter extends ArrayAdapter<Date> {
         // inflate item if it does not exist yet
         if (view == null) {
             view = mInflater.inflate(R.layout.calendar_item_text, viewGroup, false);
-        }
 
-        setBackgroundColor(view, day, month, year, today);
+        }
+        CheckBox checkBox = (CheckBox) view.findViewById(R.id.days);
+        setBackgroundColor(checkBox, day, month, year, today);
         // set text
-        ((TextView)view).setText(String.valueOf(date.getDate()));
-        view.setOnClickListener(new View.OnClickListener() {
+        checkBox.setText(String.valueOf(date.getDate()));
+        checkBox.setTag(position);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 Date date1 = getItem(position);
-                selectedDate.add(date1);
-                view.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.holo_red_dark));
+                if (isChecked) {
+                    if (!selectedDate.contains(date1)) {
+                        selectedDate.add(date1);
+                    }
+                    compoundButton.setTextColor(Color.WHITE);
+                    setShapeColor(compoundButton, Color.RED, Color.TRANSPARENT);
+                } else {
+                    selectedDate.remove(date1);
+                    setBackgroundColorAndShapeForDate(date1, today, ((CheckBox)compoundButton));
+                }
                 Toast.makeText(mContext, date1.toString(), Toast.LENGTH_LONG).show();
             }
         });
         return view;
     }
 
-    private void setBackgroundColor(View view, int day, int month, int year, Date today) {
-        // if this day has an event, specify event image
-        view.setBackgroundResource(0);
-        if (eventDays != null)
-        {
-            for (Date eventDate : eventDays)
-            {
-                if (eventDate.getDate() == day && eventDate.getMonth() == month &&
-                        eventDate.getYear() == year) {
-                    // mark this day for event
-                   // view.setBackgroundResource(R.drawable.reminder);
-                    break;
-                }
-            }
-        }
-
+    private void setBackgroundColor(CheckBox checkBox, int day, int month, int year, Date today) {
         // clear styling
-        ((TextView)view).setTypeface(null, Typeface.NORMAL);
-        ((TextView)view).setTextColor(Color.BLACK);
-
-        if (month != today.getMonth() || year != today.getYear())
-        {
+        checkBox.setTypeface(null, Typeface.NORMAL);
+        checkBox.setTextColor(Color.BLACK);
+        setShapeColor(checkBox, Color.TRANSPARENT, Color.TRANSPARENT);
+        if (month != today.getMonth() || year != today.getYear()) {
             // if this day is outside current month, grey it out
-            ((TextView)view).setTextColor(ContextCompat.getColor(mContext, android.R.color.darker_gray));
+            checkBox.setTextColor(Color.GRAY);
         }
-        else if (day == today.getDate())
-        {
+        if (day == today.getDate() && month == today.getMonth() && year == today.getYear()) {
             // if it is today, set it to blue/bold
-            ((TextView)view).setTypeface(null, Typeface.BOLD);
-            ((TextView)view).setTextColor(ContextCompat.getColor(mContext, android.R.color.holo_blue_bright));
-        } else {
-            if (selectedDate.size() > 0) {
-                for (Date date : selectedDate) {
-                    if (date.getDate() == day) {
-                        ((TextView)view).setTypeface(null, Typeface.BOLD);
-                        view.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.holo_red_dark));
-                        break;
-                    }
+            checkBox.setTypeface(null, Typeface.BOLD);
+            checkBox.setTextColor(Color.BLUE);
+            setShapeColor(checkBox, Color.TRANSPARENT, Color.BLUE);
+        }
+        if (selectedDate.size() > 0) {
+            for (Date date : selectedDate) {
+                if (date.getDate() == day && date.getMonth() == month &&  date.getYear() == year) {
+                    checkBox.setTextColor(Color.WHITE);
+                    checkBox.setChecked(true);
+                    setShapeColor(checkBox, Color.RED, Color.TRANSPARENT);
+                    break;
+                } else {
+                    //checkBox.setChecked(false);
                 }
-            } else {
-
             }
         }
+
+    }
+
+    private void setBackgroundColorAndShapeForDate(Date date1,  Date today, CheckBox checkBox){
+        int day = date1.getDate();
+        int month = date1.getMonth();
+        int year = date1.getYear();
+
+        if (day == today.getDate() && month == today.getMonth() && year == today.getYear()){
+            checkBox.setTypeface(null, Typeface.BOLD);
+            checkBox.setTextColor(Color.BLUE);
+            setShapeColor(checkBox, Color.TRANSPARENT, Color.BLUE);
+        } else {
+            checkBox.setTextColor(month !=  today.getMonth() ? Color.GRAY : Color.BLACK);
+            setShapeColor(checkBox, Color.TRANSPARENT, Color.TRANSPARENT);
+        }
+
+    }
+
+    public static void setShapeColor(View v, int backgroundColor, int borderColor) {
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.RECTANGLE);
+        shape.setCornerRadii(new float[] { 8, 8, 8, 8, 8, 8, 8, 8 });
+        shape.setColor(backgroundColor);
+        shape.setStroke(3, borderColor);
+        v.setBackgroundDrawable(shape);
     }
 
 
