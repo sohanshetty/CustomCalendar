@@ -45,8 +45,6 @@ public class CustomCalendarView extends LinearLayout {
         initControl(context);
     }
 
-
-
     /**
      * Load component XML layout
      */
@@ -98,8 +96,7 @@ public class CustomCalendarView extends LinearLayout {
     /**
      * Display dates correctly in grid
      */
-    public void updateCalendar()
-    {
+    public void updateCalendar(){
         updateCalendar(null);
     }
 
