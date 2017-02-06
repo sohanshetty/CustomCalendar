@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +59,7 @@ public class CalendarAdapter extends ArrayAdapter<Date> {
         int month = date.getMonth();
         int year = date.getYear();
         // today
-        final Date today = new Date();
+        final Date today = Calendar.getInstance().getTime();
         // inflate item if it does not exist yet
         if (view == null) {
             view = mInflater.inflate(R.layout.calendar_item_text, viewGroup, false);
